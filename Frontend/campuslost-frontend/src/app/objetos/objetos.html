@@ -1,0 +1,84 @@
+<div class="container mt-4">
+
+  <!-- HEADER -->
+  <div class="text-center mb-4">
+    <h1 class="text-primary fw-bold">CampusLost</h1>
+    <p class="text-muted">Gestión de Objetos Perdidos</p>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+      Registrar Objeto
+    </div>
+
+    <div class="card-body">
+      <form>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label>Título</label>
+            <input type="text" class="form-control" placeholder="Ej: Celular">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label>Lugar</label>
+            <input type="text" class="form-control" placeholder="Ej: Biblioteca">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label>Descripción</label>
+          <input type="text" class="form-control" placeholder="Descripción del objeto">
+        </div>
+
+        <div class="mb-3">
+          <label>Fecha</label>
+          <input type="date" class="form-control">
+        </div>
+
+        <button class="btn btn-primary w-100">
+          Registrar
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      Objetos Registrados
+    </div>
+
+    <div class="card-body">
+
+      <table class="table table-striped table-hover">
+        <thead class="table-primary">
+          <tr>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Lugar</th>
+            <th>Fecha</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>Celular</td>
+            <td>Samsung negro</td>
+            <td>Biblioteca</td>
+            <td>2026-03-20</td>
+            <td class="text-center">
+              <button class="btn btn-danger btn-sm">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,21 @@
+:root {
+  --azul-principal: #0B3A6E;
+  --azul-secundario: #1E5AA8;
+}
+
+.text-primary {
+  color: var(--azul-principal) !important;
+}
+
+.bg-primary {
+  background-color: var(--azul-principal) !important;
+}
+
+.btn-primary {
+  background-color: var(--azul-secundario);
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--azul-principal);
+}
