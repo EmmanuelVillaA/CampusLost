@@ -1,0 +1,21 @@
+<div class="container py-5" id="top">
+  <div class="text-center mb-4">
+    <h1 class="text-primary fw-bold">CampusLost</h1>
+    <p class="text-muted">Panel CRUD</p>
+  </div>
+
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      Gestión
+    </div>
+
+    <div class="card-body">
+      <div class="d-grid gap-2 d-md-flex">
+        <a class="btn btn-outline-primary flex-fill" [routerLink]="['/crud/categorias']" fragment="top">Categoría</a>
+        <a class="btn btn-outline-primary flex-fill" [routerLink]="['/crud/estados']" fragment="top">Estado</a>
+        <a class="btn btn-outline-primary flex-fill" [routerLink]="['/crud/usuarios']" fragment="top">Usuario</a>
+        <a class="btn btn-outline-primary flex-fill" [routerLink]="['/crud/roles']" fragment="top">Rol</a>
+      </div>
+    </div>
+  </div>
+</div>

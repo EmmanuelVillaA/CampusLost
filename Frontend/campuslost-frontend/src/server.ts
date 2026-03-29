@@ -5,12 +5,25 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+
+// Proxy API requests to backend (Spring Boot) so that SSR/prod server
+// can keep using relative URLs like `/api/categorias`.
+const apiTarget = process.env['API_TARGET'] || 'http://localhost:8080';
+app.use(
+  '/api',
+  createProxyMiddleware({
+    target: apiTarget,
+    changeOrigin: true,
+    secure: false,
+  }),
+);
 
 /**
  * Example Express Rest API endpoints can be defined here.

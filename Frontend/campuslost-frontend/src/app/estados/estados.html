@@ -1,0 +1,109 @@
+<div class="container py-4" id="top">
+  <div class="text-center mb-4">
+    <h1 class="text-primary fw-bold">CampusLost</h1>
+    <p class="text-muted">CRUD - Estados</p>
+  </div>
+
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">Estados</div>
+
+    <div class="card-body">
+      <div class="row g-2 align-items-center mb-3">
+        <div class="col-12 col-md">
+          <input
+            class="form-control"
+            type="search"
+            placeholder="Buscar por nombre (o ID y Enter)"
+            [(ngModel)]="searchTerm"
+            (input)="aplicarFiltroLocal()"
+            (keyup.enter)="buscar()"
+            [disabled]="buscando || guardando"
+          >
+        </div>
+        <div class="col-12 col-md-auto">
+          <button
+            type="button"
+            class="btn btn-primary w-100"
+            (click)="toggleRegistrar()"
+            [disabled]="buscando || guardando"
+          >
+            Registrar
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="formVisible" class="modal fade show" tabindex="-1" role="dialog" aria-modal="true" style="display: block;" (click)="!guardando && cancelar()">
+        <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 class="modal-title h5 mb-0">{{ editMode ? 'Editar estado' : 'Registrar estado' }}</h2>
+              <button type="button" class="btn-close" aria-label="Close" (click)="cancelar()" [disabled]="guardando"></button>
+            </div>
+            <div class="modal-body">
+              <form (ngSubmit)="guardar()" class="row g-2">
+                <div class="col-12" *ngIf="editMode">
+                  <label class="form-label">Id_Estado</label>
+                  <input class="form-control" type="number" [ngModel]="form.idEstado" name="idEstado" disabled>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Nombre</label>
+                  <input class="form-control" type="text" [(ngModel)]="form.nombre" name="nombre" required [disabled]="guardando">
+                </div>
+
+                <div class="col-12 d-grid gap-2 d-md-flex justify-content-md-end mt-2">
+                  <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="guardando">Cancelar</button>
+                  <button type="submit" class="btn btn-success" [disabled]="guardando">{{ guardando ? 'Guardando...' : 'Guardar' }}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="formVisible" class="modal-backdrop fade show" (click)="!guardando && cancelar()"></div>
+
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-primary">
+            <tr>
+              <th>Id_Estado</th>
+              <th>Nombre</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="cargando">
+              <td colspan="3" class="text-center text-muted py-4">
+                Cargando...
+              </td>
+            </tr>
+
+            <tr *ngIf="!cargando && estadosView.length === 0">
+              <td colspan="3" class="text-center text-muted py-4">
+                No hay estados para mostrar.
+              </td>
+            </tr>
+
+            <tr *ngFor="let item of estadosView">
+              <td>{{ item.idEstado }}</td>
+              <td>{{ item.nombre }}</td>
+              <td class="text-center">
+                <button type="button" class="btn btn-warning btn-sm me-2" (click)="editar(item)" [disabled]="guardando || buscando">
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm"
+                  (click)="eliminar(item)"
+                  [disabled]="eliminandoId === item.idEstado"
+                >
+                  {{ eliminandoId === item.idEstado ? 'Eliminando...' : 'Eliminar' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,165 @@
+<div class="container py-4" id="top">
+  <div class="text-center mb-4">
+    <h1 class="text-primary fw-bold">CampusLost</h1>
+    <p class="text-muted">CRUD - Usuarios</p>
+  </div>
+
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">Usuarios</div>
+
+    <div class="card-body">
+      <div class="row g-2 align-items-center mb-3">
+        <div class="col-12 col-md">
+          <input
+            class="form-control"
+            type="search"
+            placeholder="Buscar por nombre/correo (o ID y Enter)"
+            [(ngModel)]="searchTerm"
+            (input)="aplicarFiltroLocal()"
+            (keyup.enter)="buscar()"
+            [disabled]="buscando || guardando"
+          >
+        </div>
+        <div class="col-12 col-md-auto">
+          <button
+            type="button"
+            class="btn btn-primary w-100"
+            (click)="toggleRegistrar()"
+            [disabled]="buscando || guardando"
+          >
+            Registrar
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="formVisible" class="modal fade show" tabindex="-1" role="dialog" aria-modal="true" style="display: block;" (click)="!guardando && cancelar()">
+        <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 class="modal-title h5 mb-0">{{ editMode ? 'Editar usuario' : 'Registrar usuario' }}</h2>
+              <button type="button" class="btn-close" aria-label="Close" (click)="cancelar()" [disabled]="guardando"></button>
+            </div>
+            <div class="modal-body">
+              <form (ngSubmit)="guardar()" class="row g-2">
+                <div class="col-12 col-md-4" *ngIf="editMode">
+                  <label class="form-label">Id_Usuario</label>
+                  <input class="form-control" type="number" [ngModel]="form.idUsuario" name="idUsuario" disabled>
+                </div>
+
+                <div class="col-12 col-md-8" *ngIf="editMode">
+                  <label class="form-label">Fecha_Creación</label>
+                  <input class="form-control" type="text" [ngModel]="form.fechaCreacion" name="fechaCreacion" disabled>
+                </div>
+
+                <div class="col-12" *ngIf="editMode">
+                  <label class="form-label">EditorId (requerido para editar)</label>
+                  <input class="form-control" type="number" [(ngModel)]="editorId" name="editorId" required [disabled]="guardando">
+                  <div class="form-text">Debe ser el ID del usuario que está editando (quien tiene permisos).</div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Nombre</label>
+                  <input class="form-control" type="text" [(ngModel)]="form.nombre" name="nombre" required [disabled]="guardando">
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Id_Rol</label>
+
+                  <select
+                    *ngIf="roles.length > 0"
+                    class="form-select"
+                    [(ngModel)]="rolId"
+                    name="rolId"
+                    required
+                    [disabled]="guardando || rolesLoading"
+                  >
+                    <option [ngValue]="null" disabled>Selecciona un rol...</option>
+                    <option *ngFor="let r of roles" [ngValue]="r.idRol ?? r.id_rol">
+                      {{ r.nombre }} ({{ r.idRol ?? r.id_rol }})
+                    </option>
+                  </select>
+
+                  <input
+                    *ngIf="roles.length === 0"
+                    class="form-control"
+                    type="number"
+                    [(ngModel)]="rolId"
+                    name="rolId"
+                    required
+                    [disabled]="guardando"
+                    placeholder="Ej: 1"
+                  >
+
+                  <div class="form-text" *ngIf="rolesLoading">Cargando roles...</div>
+                  <div class="form-text" *ngIf="!rolesLoading && roles.length === 0">No se pudieron cargar roles; ingresa el Id_Rol manualmente.</div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Correo</label>
+                  <input class="form-control" type="email" [(ngModel)]="form.correo" name="correo" required [disabled]="guardando">
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Contraseña</label>
+                  <input class="form-control" type="password" [(ngModel)]="form.contrasena" name="contrasena" [required]="!editMode" [disabled]="guardando">
+                  <div class="form-text" *ngIf="editMode">Déjala vacía si no deseas cambiarla (se conservará la actual).</div>
+                </div>
+
+                <div class="col-12 d-grid gap-2 d-md-flex justify-content-md-end mt-2">
+                  <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="guardando">Cancelar</button>
+                  <button type="submit" class="btn btn-success" [disabled]="guardando">{{ guardando ? 'Guardando...' : 'Guardar' }}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="formVisible" class="modal-backdrop fade show" (click)="!guardando && cancelar()"></div>
+
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-primary">
+            <tr>
+              <th>Id_Usuario</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Contraseña</th>
+              <th>Fecha_Creación</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="cargando">
+              <td colspan="6" class="text-center text-muted py-4">Cargando...</td>
+            </tr>
+
+            <tr *ngIf="!cargando && usuariosView.length === 0">
+              <td colspan="6" class="text-center text-muted py-4">No hay usuarios para mostrar.</td>
+            </tr>
+
+            <tr *ngFor="let item of usuariosView">
+              <td>{{ item.idUsuario ?? item.id_usuario }}</td>
+              <td>{{ item.nombre }}</td>
+              <td>{{ item.correo }}</td>
+              <td>{{ item.contrasena }}</td>
+              <td>{{ item.fechaCreacion ?? item.fecha_creacion }}</td>
+              <td class="text-center">
+                <button type="button" class="btn btn-warning btn-sm me-2" (click)="editar(item)" [disabled]="guardando || buscando">
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm"
+                  (click)="eliminar(item)"
+                  [disabled]="eliminandoId === (item.idUsuario ?? item.id_usuario)"
+                >
+                  {{ eliminandoId === (item.idUsuario ?? item.id_usuario) ? 'Eliminando...' : 'Eliminar' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
