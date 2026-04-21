@@ -3,6 +3,9 @@ package com.campuslost.backend.service.impl;
 import com.campuslost.backend.entity.usuario;
 import com.campuslost.backend.repository.usuarioRepository;
 import com.campuslost.backend.service.usuarioService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +18,18 @@ public class usuarioServiceImpl implements usuarioService {
     public usuarioServiceImpl(usuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public usuario guardar(usuario usuario) {
+
+        if(!usuario.getContrasena().startsWith("$2a$")) {
+            usuario.setContrasena(
+                passwordEncoder.encode(usuario.getContrasena())
+            );
+        }
+
         return usuarioRepository.save(usuario);
     }
 
@@ -34,22 +46,27 @@ public class usuarioServiceImpl implements usuarioService {
     @Override
     public usuario actualizar(Integer id, usuario usuario, Integer idUsuarioEditor) {
 
-        usuario editor = usuarioRepository.findById(idUsuarioEditor).orElse(null);
+        usuario editor = usuarioRepository.findById(idUsuarioEditor)
+                .orElseThrow(() -> new RuntimeException("Editor no encontrado"));
 
-        if (editor == null || editor.getRol().getIdRol() != 1) {
+        if (editor.getRol().getIdRol() != 1) {
             throw new RuntimeException("No tienes permisos para editar usuarios");
         }
 
-        usuario existente = usuarioRepository.findById(id).orElse(null);
-
-        if (existente == null) {
-            throw new RuntimeException("Usuario no encontrado");
-        }
+        usuario existente = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         existente.setNombre(usuario.getNombre());
         existente.setCorreo(usuario.getCorreo());
-        existente.setContrasena(usuario.getContrasena());
         existente.setRol(usuario.getRol());
+
+        if (usuario.getContrasena() != null &&
+            !usuario.getContrasena().trim().isEmpty()) {
+
+            existente.setContrasena(
+                passwordEncoder.encode(usuario.getContrasena())
+            );
+        }
 
         return usuarioRepository.save(existente);
     }

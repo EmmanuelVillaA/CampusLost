@@ -1,0 +1,146 @@
+<div class="container-fluid p-4 bg-light min-vh-100">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+      <h1 class="fw-bold text-primary mb-0">CampusLost</h1>
+      <small class="text-muted">Panel principal</small>
+    </div>
+
+    <div>
+      <button class="btn btn-outline-primary me-2">
+        CRUD
+      </button>
+
+      <button class="btn btn-danger">
+        Cerrar sesión
+      </button>
+    </div>
+
+  </div>
+
+  <!-- TARJETAS -->
+  <div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h2 class="fw-bold text-primary">12</h2>
+          <p class="mb-0 text-muted">Registrados</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h2 class="fw-bold text-success">5</h2>
+          <p class="mb-0 text-muted">Entregados</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h2 class="fw-bold text-warning">3</h2>
+          <p class="mb-0 text-muted">Pendientes</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h2 class="fw-bold text-danger">1</h2>
+          <p class="mb-0 text-muted">Abandonados</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TABLA -->
+  <div class="card shadow border-0">
+
+    <div class="card-body">
+
+      <div class="d-flex justify-content-between mb-3">
+
+        <input
+          type="text"
+          class="form-control w-50"
+          placeholder="Buscar objeto..."
+        >
+
+        <button class="btn btn-primary">
+          Registrar Objeto
+        </button>
+
+      </div>
+
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+          <thead class="table-primary">
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Lugar</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr>
+              <td>1</td>
+              <td>Termo negro</td>
+              <td>Biblioteca</td>
+              <td>20/04/2026</td>
+              <td><span class="badge bg-warning">Pendiente</span></td>
+
+              <td class="text-center">
+                <button class="btn btn-sm btn-warning me-2">
+                  Editar
+                </button>
+
+                <button class="btn btn-sm btn-success">
+                  Estado
+                </button>
+              </td>
+            </tr>
+
+            <tr>
+              <td>2</td>
+              <td>USB Roja</td>
+              <td>Bloque A</td>
+              <td>19/04/2026</td>
+              <td><span class="badge bg-success">Entregado</span></td>
+
+              <td class="text-center">
+                <button class="btn btn-sm btn-warning me-2">
+                  Editar
+                </button>
+
+                <button class="btn btn-sm btn-success">
+                  Estado
+                </button>
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

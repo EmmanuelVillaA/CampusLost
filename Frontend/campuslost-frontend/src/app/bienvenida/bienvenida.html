@@ -1,6 +1,7 @@
 <div class="container py-5" id="top">
   <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
+
       <div class="text-center mb-4">
         <h1 class="text-primary fw-bold">CampusLost</h1>
         <p class="text-muted">Bienvenido/a</p>
@@ -8,16 +9,47 @@
 
       <div class="card shadow">
         <div class="card-body">
+
           <h2 class="h5 mb-3">Inicia sesión para continuar</h2>
+
           <p class="text-muted mb-4">
-            Desde ahí podrás registrar, ver y eliminar objetos perdidos.
+            Desde ahí podrás registrar, ver y gestionar objetos perdidos.
           </p>
 
-          <a class="btn btn-primary w-100" [routerLink]="['/crud']" fragment="top">
-            Iniciar sesión
-          </a>
+          <!-- CORREO -->
+          <div class="mb-3">
+            <label class="form-label">Correo</label>
+            <input
+              type="email"
+              class="form-control"
+              placeholder="Ingresa tu correo"
+              [(ngModel)]="correo"
+            >
+          </div>
+
+          <!-- CONTRASEÑA -->
+          <div class="mb-4">
+            <label class="form-label">Contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Ingresa tu contraseña"
+              [(ngModel)]="contrasena"
+            >
+          </div>
+
+          <!-- BOTÓN LOGIN -->
+          <button
+            class="btn btn-primary w-100"
+            (click)="iniciarSesion()"
+            [disabled]="cargando"
+          >
+            {{ cargando ? 'Ingresando...' : 'Iniciar sesión' }}
+          </button>
+
         </div>
       </div>
+
     </div>
   </div>
 </div>
