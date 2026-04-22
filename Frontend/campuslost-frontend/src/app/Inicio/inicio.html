@@ -23,37 +23,28 @@
   <!-- TARJETAS -->
   <div class="row g-3 mb-4">
 
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="card shadow-sm border-0">
         <div class="card-body text-center">
-          <h2 class="fw-bold text-primary">12</h2>
+          <h2 class="fw-bold text-primary">{{ totalRegistrados }}</h2>
           <p class="mb-0 text-muted">Registrados</p>
         </div>
       </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="card shadow-sm border-0">
         <div class="card-body text-center">
-          <h2 class="fw-bold text-success">5</h2>
+          <h2 class="fw-bold text-success">{{ totalEntregados }}</h2>
           <p class="mb-0 text-muted">Entregados</p>
         </div>
       </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="card shadow-sm border-0">
         <div class="card-body text-center">
-          <h2 class="fw-bold text-warning">3</h2>
-          <p class="mb-0 text-muted">Pendientes</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="card shadow-sm border-0">
-        <div class="card-body text-center">
-          <h2 class="fw-bold text-danger">1</h2>
+          <h2 class="fw-bold text-danger">{{ totalAbandonados }}</h2>
           <p class="mb-0 text-muted">Abandonados</p>
         </div>
       </div>
@@ -72,9 +63,13 @@
           type="text"
           class="form-control w-50"
           placeholder="Buscar objeto..."
+          [(ngModel)]="searchTerm"
+          (input)="aplicarFiltroLocal()"
+          (keyup.enter)="buscar()"
+          [disabled]="buscando || guardando"
         >
 
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" type="button" (click)="toggleRegistrar()" [disabled]="buscando || guardando">
           Registrar Objeto
         </button>
 
@@ -88,6 +83,8 @@
             <tr>
               <th>ID</th>
               <th>Título</th>
+              <th>Descripción</th>
+              <th>Categoría</th>
               <th>Lugar</th>
               <th>Fecha</th>
               <th>Estado</th>
@@ -97,37 +94,37 @@
 
           <tbody>
 
-            <tr>
-              <td>1</td>
-              <td>Termo negro</td>
-              <td>Biblioteca</td>
-              <td>20/04/2026</td>
-              <td><span class="badge bg-warning">Pendiente</span></td>
-
-              <td class="text-center">
-                <button class="btn btn-sm btn-warning me-2">
-                  Editar
-                </button>
-
-                <button class="btn btn-sm btn-success">
-                  Estado
-                </button>
+            <tr *ngIf="cargando">
+              <td colspan="8" class="text-center text-muted py-4">
+                Cargando...
               </td>
             </tr>
 
-            <tr>
-              <td>2</td>
-              <td>USB Roja</td>
-              <td>Bloque A</td>
-              <td>19/04/2026</td>
-              <td><span class="badge bg-success">Entregado</span></td>
+            <tr *ngIf="!cargando && objetosView.length === 0">
+              <td colspan="8" class="text-center text-muted py-4">
+                No hay objetos para mostrar.
+              </td>
+            </tr>
+
+            <tr *ngFor="let item of objetosView">
+              <td>{{ item.idObjeto ?? item.id_objeto }}</td>
+              <td>{{ item.titulo }}</td>
+              <td>{{ item.descripcion }}</td>
+              <td>{{ getCategoriaNombre(item) }}</td>
+              <td>{{ item.lugar }}</td>
+              <td>{{ getFechaDisplay(item) }}</td>
+              <td>
+                <span class="badge" [ngClass]="getBadgeClass(item)">
+                  {{ getEstadoNombre(item) || 'Sin estado' }}
+                </span>
+              </td>
 
               <td class="text-center">
-                <button class="btn btn-sm btn-warning me-2">
+                <button class="btn btn-sm btn-warning me-2" type="button" (click)="editar(item)" [disabled]="guardando || buscando">
                   Editar
                 </button>
 
-                <button class="btn btn-sm btn-success">
+                <button class="btn btn-sm btn-success" type="button" (click)="editarEstado(item)" [disabled]="guardando || buscando">
                   Estado
                 </button>
               </td>
@@ -145,7 +142,77 @@
 
 </div>
 
-<!-- Confirmación cerrar sesión (popup) -->
+<!-- Modal registrar/editar/estado -->
+<div *ngIf="formVisible" class="modal fade show" tabindex="-1" role="dialog" aria-modal="true" style="display: block;" (click)="!guardando && cancelar()">
+  <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">
+          {{ editMode ? (estadoOnlyMode ? 'Cambiar estado' : 'Editar objeto') : 'Registrar objeto' }}
+        </h2>
+        <button type="button" class="btn-close" aria-label="Close" (click)="cancelar()" [disabled]="guardando"></button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="guardar()" class="row g-2">
+          <div class="col-12" *ngIf="editMode">
+            <label class="form-label">ID</label>
+            <input class="form-control" type="number" [ngModel]="form.idObjeto" name="idObjeto" disabled>
+          </div>
+
+          <ng-container *ngIf="!estadoOnlyMode">
+            <div class="col-12">
+              <label class="form-label">Título</label>
+              <input class="form-control" type="text" [(ngModel)]="form.titulo" name="titulo" required [disabled]="guardando">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Lugar</label>
+              <input class="form-control" type="text" [(ngModel)]="form.lugar" name="lugar" required [disabled]="guardando">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Categoría</label>
+              <select class="form-select" [(ngModel)]="categoriaId" name="categoriaId" required [disabled]="guardando || categoriasLoading">
+                <option [ngValue]="null">-- Seleccionar --</option>
+                <option *ngFor="let c of categorias" [ngValue]="c.idCategoria">{{ c.nombre }}</option>
+              </select>
+              <small class="text-muted" *ngIf="categoriasLoading">Cargando categorías...</small>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Descripción</label>
+              <input class="form-control" type="text" [(ngModel)]="form.descripcion" name="descripcion" [disabled]="guardando">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Fecha</label>
+              <input class="form-control" type="date" [(ngModel)]="form.fecha" name="fecha" [disabled]="guardando">
+            </div>
+          </ng-container>
+
+          <div class="col-12" *ngIf="!editMode || estadoOnlyMode">
+            <label class="form-label">Estado</label>
+            <select class="form-select" [(ngModel)]="estadoId" name="estadoId" [disabled]="guardando || estadosLoading">
+              <option [ngValue]="null">-- Seleccionar --</option>
+              <option *ngFor="let e of estados" [ngValue]="e.idEstado ?? e.id_estado">{{ e.nombre }}</option>
+            </select>
+            <small class="text-muted" *ngIf="estadosLoading">Cargando estados...</small>
+          </div>
+
+          <div class="col-12 d-grid gap-2 d-md-flex justify-content-md-end mt-2">
+            <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="guardando">Cancelar</button>
+            <button type="submit" class="btn btn-success" [disabled]="guardando">
+              {{ guardando ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="formVisible" class="modal-backdrop fade show" (click)="!guardando && cancelar()"></div>
+
 <div *ngIf="mostrarConfirmCerrarSesion">
   <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
     <div class="modal-dialog modal-dialog-centered" role="document">

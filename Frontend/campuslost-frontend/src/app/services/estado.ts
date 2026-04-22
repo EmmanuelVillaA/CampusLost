@@ -2,10 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface EstadoDto {
-  idEstado?: number;
-  nombre: string;
-}
+import { EstadoDto } from '../dto/estadoDTO';
 
 @Injectable({
   providedIn: 'root',

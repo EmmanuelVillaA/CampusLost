@@ -2,7 +2,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { EstadoDto, EstadoService } from '../services/estado';
+import { EstadoService } from '../services/estado';
+import { EstadoDto } from '../dto/estadoDTO';
 
 @Component({
   selector: 'app-estados',
