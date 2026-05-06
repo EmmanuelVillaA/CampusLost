@@ -6,7 +6,7 @@ import { Categorias } from './categorias/categorias';
 import { Estados } from './estados/estados';
 import { Roles } from './roles/roles';
 import { Usuarios } from './usuarios/usuarios';
-import { Objetos } from './objetos/objetos';
+import { RegistroObjetos } from './objetos/registro-objetos';
 import { inicio } from './Inicio/inicio';
 import { auth } from './auth/auth';
 
@@ -60,8 +60,8 @@ export const routes: Routes = [
   },
 
   {
-    path: 'objetos',
-    component: Objetos,
+    path: 'RegistroObjetos',
+    component: RegistroObjetos,
     canActivate: [auth]
   },
 

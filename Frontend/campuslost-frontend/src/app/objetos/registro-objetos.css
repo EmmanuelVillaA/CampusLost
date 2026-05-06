@@ -134,24 +134,113 @@
   padding: 2.5rem !important;
 }
 
-/* BOTONES ACCIÓN */
+/* BOTONES ACCIÓN MEJORADOS */
 .btn-accion {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 6px;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
   font-size: 13px;
+  font-weight: 500;
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
   margin: 0 3px;
+  transition: all 0.2s ease;
 }
 
-.btn-accion:disabled { opacity: 0.5; cursor: not-allowed; }
+/* EFECTO GENERAL */
+.btn-accion:hover {
+  transform: translateY(-1px);
+}
 
-.btn-editar  { background: #FAEEDA; color: #854F0B; }
-.btn-editar:hover  { background: #FAC775; }
+.btn-accion:active {
+  transform: scale(0.96);
+}
 
-.btn-eliminar { background: #FCEBEB; color: #A32D2D; }
-.btn-eliminar:hover { background: #F7C1C1; }
+.btn-accion:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* EDITAR */
+.btn-editar {
+  background: #FFF4E5;
+  color: #B45309;
+  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.15);
+}
+
+.btn-editar:hover {
+  background: #FCD9A4;
+  box-shadow: 0 4px 10px rgba(180, 83, 9, 0.25);
+}
+
+/* ELIMINAR */
+.btn-eliminar {
+  background: #FEE2E2;
+  color: #B91C1C;
+  box-shadow: 0 2px 6px rgba(185, 28, 28, 0.15);
+}
+
+.btn-eliminar:hover {
+  background: #FCA5A5;
+  box-shadow: 0 4px 10px rgba(185, 28, 28, 0.25);
+}
+
+/* TARJETAS — mismo estilo que inicio */
+.tarjetas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tarjeta {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 0.5px solid rgba(0,0,0,0.08);
+}
+
+.tarjeta-icono {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.tarjeta-total .tarjeta-icono     { background: #E6F1FB; color: #185FA5; }
+.tarjeta-registrado .tarjeta-icono { background: #E6F1FB; color: #185FA5; }
+.tarjeta-entregado .tarjeta-icono  { background: #EAF3DE; color: #3B6D11; }
+.tarjeta-abandonado .tarjeta-icono { background: #FCEBEB; color: #A32D2D; }
+
+.tarjeta-label {
+  font-size: 13px;
+  color: #888780;
+  margin: 0 0 4px;
+}
+
+.tarjeta-valor {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+  color: #2C2C2A;
+}
+
+/* Badge estado */
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-registrado  { background: #E6F1FB; color: #0C447C; }
+.badge-entregado   { background: #EAF3DE; color: #27500A; }
+.badge-abandonado  { background: #FCEBEB; color: #791F1F; }
+.badge-sin-estado  { background: #F1EFE8; color: #444441; }
+
+/* Botón estado */
+.btn-estado { background: #E1F5EE; color: #0F6E56; }
+.btn-estado:hover { background: #9FE1CB; }

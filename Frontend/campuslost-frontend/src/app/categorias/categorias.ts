@@ -1,23 +1,28 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CategoriaDto, CategoriaService } from '../services/categoria';
 import { firstValueFrom } from 'rxjs';
 import { RouterLink } from '@angular/router';
+import { PaginationControls } from '../shared/pagination-controls';
+import { TablePagination } from '../shared/table-pagination';
+import { Navbar } from '../componentes-generales/navbar-component';
 
 @Component({
   selector: 'app-categorias',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, PaginationControls,Navbar],
   templateUrl: './categorias.html',
   styleUrl: './categorias.css',
 })
 export class Categorias implements OnInit {
   private readonly categoriaService = inject(CategoriaService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   categorias: CategoriaDto[] = [];
   categoriasView: CategoriaDto[] = [];
+  pagination = new TablePagination<CategoriaDto>();
 
   cargando = false;
   buscando = false;
@@ -30,10 +35,8 @@ export class Categorias implements OnInit {
   form: CategoriaDto = { nombre: '' };
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.cargando = true;
-      setTimeout(() => void this.cargar(), 0);
-    }
+    this.cargando = true;
+    setTimeout(() => void this.cargar(), 0);
   }
 
   async cargar(): Promise<void> {
@@ -74,12 +77,14 @@ export class Categorias implements OnInit {
   aplicarFiltroLocal(): void {
     const q = this.searchTerm.trim().toLowerCase();
     if (!q) {
-      this.categoriasView = [...this.categorias];
+      this.updatePagination([...this.categorias]);
       return;
     }
 
-    this.categoriasView = this.categorias.filter((c) =>
-      (c.nombre ?? '').toLowerCase().includes(q)
+    this.updatePagination(
+      this.categorias.filter((c) =>
+        (c.nombre ?? '').toLowerCase().includes(q)
+      )
     );
   }
 
@@ -95,10 +100,10 @@ export class Categorias implements OnInit {
       this.buscando = true;
       try {
         const item = await firstValueFrom(this.categoriaService.obtenerPorId(numericId));
-        this.categoriasView = item ? [item] : [];
+        this.updatePagination(item ? [item] : []);
       } catch (error) {
         console.error(error);
-        this.categoriasView = [];
+        this.updatePagination([]);
         alert('No se encontró la categoría con ese ID.');
       } finally {
         this.buscando = false;
@@ -107,6 +112,12 @@ export class Categorias implements OnInit {
     }
 
     this.aplicarFiltroLocal();
+  }
+
+  private updatePagination(items: CategoriaDto[]): void {
+    this.categoriasView = items;
+    this.pagination.data = items;
+    this.cdr.markForCheck();
   }
 
   async guardar(): Promise<void> {
@@ -145,7 +156,7 @@ export class Categorias implements OnInit {
     const prevCategoriasView = this.categoriasView;
 
     this.categorias = this.categorias.filter((c) => c.idCategoria !== id);
-    this.categoriasView = this.categoriasView.filter((c) => c.idCategoria !== id);
+    this.updatePagination(this.categoriasView.filter((c) => c.idCategoria !== id));
     if (this.editMode && this.form.idCategoria === id) {
       this.cancelar();
     }
@@ -157,7 +168,7 @@ export class Categorias implements OnInit {
     } catch (error) {
       console.error(error);
       this.categorias = prevCategorias;
-      this.categoriasView = prevCategoriasView;
+      this.updatePagination(prevCategoriasView);
       alert('No se pudo eliminar la categoría.');
     } finally {
       this.eliminandoId = null;

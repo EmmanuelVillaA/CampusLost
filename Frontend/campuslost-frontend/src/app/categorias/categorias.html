@@ -1,121 +1,96 @@
-<div class="container py-4" id="top">
-  <div class="text-center mb-4">
-    <h1 class="text-primary fw-bold">CampusLost</h1>
-    <p class="text-muted">CRUD - Categorías</p>
+<app-navbar></app-navbar>
+
+<div class="page-wrapper">
+
+  <div class="page-hero">
+    <div>
+      <h1 class="page-titulo">Administrar categorías</h1>
+      <p class="page-sub">Gestiona las categorías del sistema</p>
+    </div>
+    <button class="btn-registrar" type="button" (click)="toggleRegistrar()" [disabled]="buscando || guardando">
+      <i class="ti ti-plus"></i> Registrar categoría
+    </button>
   </div>
 
-  <button class="btn btn-outline-primary me-2" [routerLink]="['/inicio']">
-    Atras
-  </button>
-
-  <div class="card shadow">
-    <div class="card-header bg-primary text-white">Categorías</div>
-
-    <div class="card-body">
-      <div class="row g-2 align-items-center mb-3">
-        <div class="col-12 col-md">
-          <input
-            class="form-control"
-            type="search"
-            placeholder="Buscar por nombre o por ID"
-            [(ngModel)]="searchTerm"
-            [disabled]="buscando || guardando"
-          >
-        </div>
-        <div class="col-12 col-md-auto">
-          <button
-            type="button"
-            class="btn btn-outline-primary w-100"
-            (click)="buscar()"
-            [disabled]="buscando || guardando"
-          >
-            Buscar
-          </button>
-        </div>
-        <div class="col-12 col-md-auto">
-          <button
-            type="button"
-            class="btn btn-primary w-100"
-            (click)="toggleRegistrar()"
-            [disabled]="buscando || guardando"
-          >
-            Registrar
-          </button>
-        </div>
+  <div class="tabla-card">
+    <div class="tabla-busqueda">
+      <div class="busqueda-input-wrap">
+        <i class="ti ti-search"></i>
+        <input type="search" class="busqueda-input" placeholder="Buscar por nombre o ID..." [(ngModel)]="searchTerm" [disabled]="buscando || guardando">
       </div>
+      <button class="btn-buscar" type="button" (click)="buscar()" [disabled]="buscando || guardando">Buscar</button>
+    </div>
 
-      <div *ngIf="formVisible" class="modal fade show" tabindex="-1" role="dialog" aria-modal="true" style="display: block;" (click)="!guardando && cancelar()">
-        <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h2 class="modal-title h5 mb-0">{{ editMode ? 'Editar categoría' : 'Registrar categoría' }}</h2>
-              <button type="button" class="btn-close" aria-label="Close" (click)="cancelar()" [disabled]="guardando"></button>
-            </div>
-            <div class="modal-body">
-              <form (ngSubmit)="guardar()" class="row g-2">
-                <div class="col-12" *ngIf="editMode">
-                  <label class="form-label">Id_Categoría</label>
-                  <input class="form-control" type="number" [ngModel]="form.idCategoria" name="idCategoria" disabled>
-                </div>
+    <app-pagination-controls
+      [pageSizeOptions]="pagination.pageSizeOptions"
+      [(pageSize)]="pagination.pageSize"
+      [currentPage]="pagination.currentPage"
+      [totalPages]="pagination.totalPages"
+      (pageChange)="pagination.setPage($event)"
+    ></app-pagination-controls>
 
-                <div class="col-12">
-                  <label class="form-label">Nombre</label>
-                  <input class="form-control" type="text" [(ngModel)]="form.nombre" name="nombre" required [disabled]="guardando">
-                </div>
+    <div class="table-responsive">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="cargando">
+            <td colspan="3" class="tabla-empty">Cargando...</td>
+          </tr>
+          <tr *ngIf="!cargando && pagination.pageData.length === 0">
+            <td colspan="3" class="tabla-empty">No hay categorías para mostrar.</td>
+          </tr>
+          <tr *ngFor="let item of pagination.pageData">
+            <td>{{ item.idCategoria }}</td>
+            <td>{{ item.nombre }}</td>
+            <td class="text-center">
+              <button type="button" class="btn-accion btn-editar" (click)="editar(item)" [disabled]="guardando || buscando">
+                <i class="ti ti-edit"></i> Editar
+              </button>
+              <button type="button" class="btn-accion btn-eliminar" (click)="eliminar(item)" [disabled]="eliminandoId === item.idCategoria">
+                <i class="ti ti-trash"></i>
+                {{ eliminandoId === item.idCategoria ? 'Eliminando...' : 'Eliminar' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-                <div class="col-12 d-grid gap-2 d-md-flex justify-content-md-end mt-2">
-                  <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="guardando">Cancelar</button>
-                  <button type="submit" class="btn btn-success" [disabled]="guardando">{{ guardando ? 'Guardando...' : 'Guardar' }}</button>
-                </div>
-              </form>
-            </div>
+</div>
+
+<div *ngIf="formVisible" class="modal fade show" tabindex="-1" role="dialog" aria-modal="true" style="display: block;" (click)="!guardando && cancelar()">
+  <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">{{ editMode ? 'Editar categoría' : 'Registrar categoría' }}</h2>
+        <button type="button" class="btn-close" (click)="cancelar()" [disabled]="guardando"></button>
+      </div>
+      <div class="modal-body">
+        <form class="row g-2">
+          <div class="col-12" *ngIf="editMode">
+            <label class="form-label">ID</label>
+            <input class="form-control" type="number" [ngModel]="form.idCategoria" name="idCategoria" disabled>
           </div>
-        </div>
-      </div>
-      <div *ngIf="formVisible" class="modal-backdrop fade show" (click)="!guardando && cancelar()"></div>
-
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead class="table-primary">
-            <tr>
-              <th>Id_Categoría</th>
-              <th>Nombre</th>
-              <th class="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="cargando">
-              <td colspan="3" class="text-center text-muted py-4">
-                Cargando...
-              </td>
-            </tr>
-
-            <tr *ngIf="!cargando && categoriasView.length === 0">
-              <td colspan="3" class="text-center text-muted py-4">
-                No hay categorías para mostrar.
-              </td>
-            </tr>
-
-            <tr *ngFor="let item of categoriasView">
-              <td>{{ item.idCategoria }}</td>
-              <td>{{ item.nombre }}</td>
-              <td class="text-center">
-                <button type="button" class="btn btn-warning btn-sm me-2" (click)="editar(item)" [disabled]="guardando || buscando">
-                  Editar
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-danger btn-sm"
-                  (click)="eliminar(item)"
-                  [disabled]="eliminandoId === item.idCategoria"
-                >
-                  {{ eliminandoId === item.idCategoria ? 'Eliminando...' : 'Eliminar' }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+          <div class="col-12">
+            <label class="form-label">Nombre</label>
+            <input class="form-control" type="text" [(ngModel)]="form.nombre" name="nombre" required [disabled]="guardando">
+          </div>
+          <div class="col-12 d-grid gap-2 d-md-flex justify-content-md-end mt-2">
+            <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="guardando">Cancelar</button>
+            <button type="button" class="btn btn-success" (click)="guardar()" [disabled]="guardando">
+              {{ guardando ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </div>
+<div *ngIf="formVisible" class="modal-backdrop fade show" (click)="!guardando && cancelar()"></div>

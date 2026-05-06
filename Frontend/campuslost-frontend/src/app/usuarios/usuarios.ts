@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { RouterLink } from '@angular/router';
@@ -8,11 +8,14 @@ import { UsuarioDto, UsuarioService } from '../services/usuario';
 import { RolDto, RolService } from '../services/rol';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../services/auth';
+import { PaginationControls } from '../shared/pagination-controls';
+import { TablePagination } from '../shared/table-pagination';
+import { Navbar } from '../componentes-generales/navbar-component';
 
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, PaginationControls,Navbar],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.css',
 })
@@ -21,9 +24,11 @@ export class Usuarios implements OnInit {
   private readonly rolService = inject(RolService);
   private readonly authService = inject(AuthService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   usuarios: UsuarioDto[] = [];
   usuariosView: UsuarioDto[] = [];
+  pagination = new TablePagination<UsuarioDto>();
 
   roles: RolDto[] = [];
   rolesLoading = false;
@@ -115,14 +120,12 @@ export class Usuarios implements OnInit {
   }
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.refreshEditPermissions();
-      this.cargando = true;
-      setTimeout(() => {
-        void this.cargar();
-        void this.cargarRoles();
-      }, 0);
-    }
+    this.refreshEditPermissions();
+    this.cargando = true;
+    setTimeout(() => {
+      void this.cargar();
+      void this.cargarRoles();
+    }, 0);
   }
 
   private getId(item: UsuarioDto): number | undefined {
@@ -215,15 +218,17 @@ export class Usuarios implements OnInit {
   aplicarFiltroLocal(): void {
     const q = this.searchTerm.trim().toLowerCase();
     if (!q) {
-      this.usuariosView = [...this.usuarios];
+      this.updatePagination([...this.usuarios]);
       return;
     }
 
-    this.usuariosView = this.usuarios.filter((u) => {
-      const nombre = (u.nombre ?? '').toLowerCase();
-      const correo = (u.correo ?? '').toLowerCase();
-      return nombre.includes(q) || correo.includes(q);
-    });
+    this.updatePagination(
+      this.usuarios.filter((u) => {
+        const nombre = (u.nombre ?? '').toLowerCase();
+        const correo = (u.correo ?? '').toLowerCase();
+        return nombre.includes(q) || correo.includes(q);
+      })
+    );
   }
 
   async buscar(): Promise<void> {
@@ -238,10 +243,10 @@ export class Usuarios implements OnInit {
       this.buscando = true;
       try {
         const item = await firstValueFrom(this.usuarioService.obtenerPorId(numericId));
-        this.usuariosView = item ? [item] : [];
+        this.updatePagination(item ? [item] : []);
       } catch (error) {
         console.error(error);
-        this.usuariosView = [];
+        this.updatePagination([]);
         alert('No se encontró el usuario con ese ID.');
       } finally {
         this.buscando = false;
@@ -250,6 +255,12 @@ export class Usuarios implements OnInit {
     }
 
     this.aplicarFiltroLocal();
+  }
+
+  private updatePagination(items: UsuarioDto[]): void {
+    this.usuariosView = items;
+    this.pagination.data = items;
+     this.cdr.markForCheck();
   }
 
   async guardar(): Promise<void> {
@@ -336,7 +347,7 @@ export class Usuarios implements OnInit {
     const prevUsuariosView = this.usuariosView;
 
     this.usuarios = this.usuarios.filter((u) => this.getId(u) !== id);
-    this.usuariosView = this.usuariosView.filter((u) => this.getId(u) !== id);
+    this.updatePagination(this.usuariosView.filter((u) => this.getId(u) !== id));
     if (this.editMode && this.form.idUsuario === id) {
       this.cancelar();
     }
@@ -348,7 +359,7 @@ export class Usuarios implements OnInit {
     } catch (error) {
       console.error(error);
       this.usuarios = prevUsuarios;
-      this.usuariosView = prevUsuariosView;
+      this.updatePagination(prevUsuariosView);
       alert('No se pudo eliminar el usuario.');
     } finally {
       this.eliminandoId = null;

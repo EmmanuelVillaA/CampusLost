@@ -39,6 +39,13 @@ public class objeto {
 
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
+    
+    @Column(name = "en_punto_encuentro")
+    private Boolean enPuntoEncuentro = false;
+
+    @Column(name = "fecha_punto_encuentro")
+    private LocalDateTime fechaPuntoEncuentro;
+
 
     @PrePersist
     public void prePersist() {
@@ -124,6 +131,18 @@ public class objeto {
 	public void setFechaRegistro(LocalDateTime fechaRegistro) {
 		this.fechaRegistro = fechaRegistro;
 	}
-
+	
+	public Boolean getEnPuntoEncuentro() {
+	        return enPuntoEncuentro;
+	    }
+	public void setEnPuntoEncuentro(Boolean enPuntoEncuentro) {
+	        this.enPuntoEncuentro = enPuntoEncuentro;
+	    }
+	public LocalDateTime getFechaPuntoEncuentro() {
+	        return fechaPuntoEncuentro;
+	    }
+	public void setFechaPuntoEncuentro(LocalDateTime fechaPuntoEncuentro) {
+	        this.fechaPuntoEncuentro = fechaPuntoEncuentro;
+	    }
     
 }
