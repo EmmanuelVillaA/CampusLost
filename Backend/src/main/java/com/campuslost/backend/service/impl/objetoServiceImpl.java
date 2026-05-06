@@ -5,6 +5,7 @@ import com.campuslost.backend.repository.objetoRepository;
 import com.campuslost.backend.service.objetoService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -47,6 +48,8 @@ public class objetoServiceImpl implements objetoService {
         existente.setImagenUrl(datos.getImagenUrl());
         existente.setCategoria(datos.getCategoria());
         existente.setEstado(datos.getEstado());
+        existente.setEnPuntoEncuentro(datos.getEnPuntoEncuentro());
+        existente.setFechaPuntoEncuentro(datos.getFechaPuntoEncuentro());
 
         return objetoRepository.save(existente);
     }
@@ -54,5 +57,14 @@ public class objetoServiceImpl implements objetoService {
     @Override
     public void eliminar(Integer id) {
         objetoRepository.deleteById(id);
+    }
+    
+    @Override
+    public objeto marcarPuntoEncuentro(Integer id, Boolean valor) {
+        objeto existente = objetoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Objeto no encontrado"));
+        existente.setEnPuntoEncuentro(valor);
+        existente.setFechaPuntoEncuentro(valor ? LocalDateTime.now() : null);
+        return objetoRepository.save(existente);
     }
 }

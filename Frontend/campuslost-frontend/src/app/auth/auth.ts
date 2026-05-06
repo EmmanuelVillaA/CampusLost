@@ -9,8 +9,6 @@ export const auth: CanActivateFn = () => {
   const router = inject(Router);
   const platformId = inject(PLATFORM_ID);
 
-  // SSR/prerender: no sessionStorage, so don't force redirect here.
-  // The browser-side guard will run after hydration.
   if (!isPlatformBrowser(platformId)) {
     return true;
   }

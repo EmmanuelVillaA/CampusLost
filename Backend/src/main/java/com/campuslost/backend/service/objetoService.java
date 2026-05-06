@@ -14,4 +14,6 @@ public interface objetoService {
     objeto actualizar(Integer id, objeto objeto);
 
     void eliminar(Integer id);
+    
+    objeto marcarPuntoEncuentro(Integer id, Boolean valor);
 }

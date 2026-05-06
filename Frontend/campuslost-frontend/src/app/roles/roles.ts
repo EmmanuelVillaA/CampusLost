@@ -1,24 +1,30 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { RouterLink } from '@angular/router';
 
 import { RolDto, RolService } from '../services/rol';
+import { PaginationControls } from '../shared/pagination-controls';
+import { TablePagination } from '../shared/table-pagination';
+import { Navbar } from '../componentes-generales/navbar-component';
 
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, PaginationControls, Navbar], // ← Navbar
   templateUrl: './roles.html',
   styleUrl: './roles.css',
 })
+
 export class Roles implements OnInit {
   private readonly rolService = inject(RolService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   roles: RolDto[] = [];
   rolesView: RolDto[] = [];
+  pagination = new TablePagination<RolDto>();
 
   cargando = false;
   buscando = false;
@@ -31,10 +37,8 @@ export class Roles implements OnInit {
   form: RolDto = { nombre: '' };
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.cargando = true;
-      setTimeout(() => void this.cargar(), 0);
-    }
+    this.cargando = true;
+    setTimeout(() => void this.cargar(), 0);
   }
 
   private getId(item: RolDto): number | undefined {
@@ -79,10 +83,10 @@ export class Roles implements OnInit {
   aplicarFiltroLocal(): void {
     const q = this.searchTerm.trim().toLowerCase();
     if (!q) {
-      this.rolesView = [...this.roles];
+      this.updatePagination([...this.roles]);
       return;
     }
-    this.rolesView = this.roles.filter((r) => (r.nombre ?? '').toLowerCase().includes(q));
+    this.updatePagination(this.roles.filter((r) => (r.nombre ?? '').toLowerCase().includes(q)));
   }
 
   async buscar(): Promise<void> {
@@ -97,10 +101,10 @@ export class Roles implements OnInit {
       this.buscando = true;
       try {
         const item = await firstValueFrom(this.rolService.obtenerPorId(numericId));
-        this.rolesView = item ? [item] : [];
+        this.updatePagination(item ? [item] : []);
       } catch (error) {
         console.error(error);
-        this.rolesView = [];
+        this.updatePagination([]);
         alert('No se encontró el rol con ese ID.');
       } finally {
         this.buscando = false;
@@ -109,6 +113,12 @@ export class Roles implements OnInit {
     }
 
     this.aplicarFiltroLocal();
+  }
+
+  private updatePagination(items: RolDto[]): void {
+    this.rolesView = items;
+    this.pagination.data = items;
+     this.cdr.markForCheck();
   }
 
   async guardar(): Promise<void> {
@@ -147,7 +157,7 @@ export class Roles implements OnInit {
     const prevRolesView = this.rolesView;
 
     this.roles = this.roles.filter((r) => this.getId(r) !== id);
-    this.rolesView = this.rolesView.filter((r) => this.getId(r) !== id);
+    this.updatePagination(this.rolesView.filter((r) => this.getId(r) !== id));
     if (this.editMode && this.form.idRol === id) {
       this.cancelar();
     }
@@ -159,7 +169,7 @@ export class Roles implements OnInit {
     } catch (error) {
       console.error(error);
       this.roles = prevRoles;
-      this.rolesView = prevRolesView;
+      this.updatePagination(prevRolesView);
       alert('No se pudo eliminar el rol.');
     } finally {
       this.eliminandoId = null;

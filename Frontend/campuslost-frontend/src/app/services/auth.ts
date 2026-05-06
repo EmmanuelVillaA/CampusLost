@@ -22,9 +22,15 @@ export class AuthService {
   }
 
   guardarSesion(usuario: any): void {
-    if (!this.isBrowser) return;
-    sessionStorage.setItem('usuario', JSON.stringify(usuario));
-  }
+  if (!this.isBrowser) return;
+  const sesionMinima = {
+    idUsuario: usuario.idUsuario ?? usuario.id_usuario,
+    nombre: usuario.nombre,
+    rol: usuario.rol?.nombre ?? usuario.rol
+  };
+  sessionStorage.setItem('usuario', JSON.stringify(sesionMinima));
+}
+
 
   obtenerSesion(): any {
     if (!this.isBrowser) return null;

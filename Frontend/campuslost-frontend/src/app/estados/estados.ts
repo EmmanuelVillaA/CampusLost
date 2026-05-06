@@ -1,24 +1,29 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { EstadoService } from '../services/estado';
 import { EstadoDto } from '../dto/estadoDTO';
+import { PaginationControls } from '../shared/pagination-controls';
+import { TablePagination } from '../shared/table-pagination';
+import { Navbar } from '../componentes-generales/navbar-component';
 
 @Component({
   selector: 'app-estados',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, PaginationControls,Navbar],
   templateUrl: './estados.html',
   styleUrl: './estados.css',
 })
 export class Estados implements OnInit {
   private readonly estadoService = inject(EstadoService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   estados: EstadoDto[] = [];
   estadosView: EstadoDto[] = [];
+  pagination = new TablePagination<EstadoDto>();
 
   cargando = false;
   buscando = false;
@@ -31,10 +36,8 @@ export class Estados implements OnInit {
   form: EstadoDto = { nombre: '' };
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.cargando = true;
-      setTimeout(() => void this.cargar(), 0);
-    }
+    this.cargando = true;
+    setTimeout(() => void this.cargar(), 0);
   }
 
   async cargar(): Promise<void> {
@@ -75,12 +78,14 @@ export class Estados implements OnInit {
   aplicarFiltroLocal(): void {
     const q = this.searchTerm.trim().toLowerCase();
     if (!q) {
-      this.estadosView = [...this.estados];
+      this.updatePagination([...this.estados]);
       return;
     }
 
-    this.estadosView = this.estados.filter((e) =>
-      (e.nombre ?? '').toLowerCase().includes(q)
+    this.updatePagination(
+      this.estados.filter((e) =>
+        (e.nombre ?? '').toLowerCase().includes(q)
+      )
     );
   }
 
@@ -96,10 +101,10 @@ export class Estados implements OnInit {
       this.buscando = true;
       try {
         const item = await firstValueFrom(this.estadoService.obtenerPorId(numericId));
-        this.estadosView = item ? [item] : [];
+        this.updatePagination(item ? [item] : []);
       } catch (error) {
         console.error(error);
-        this.estadosView = [];
+        this.updatePagination([]);
         alert('No se encontró el estado con ese ID.');
       } finally {
         this.buscando = false;
@@ -108,6 +113,12 @@ export class Estados implements OnInit {
     }
 
     this.aplicarFiltroLocal();
+  }
+
+  private updatePagination(items: EstadoDto[]): void {
+    this.estadosView = items;
+    this.pagination.data = items;
+    this.cdr.markForCheck();
   }
 
   async guardar(): Promise<void> {
@@ -146,7 +157,7 @@ export class Estados implements OnInit {
     const prevEstadosView = this.estadosView;
 
     this.estados = this.estados.filter((e) => e.idEstado !== id);
-    this.estadosView = this.estadosView.filter((e) => e.idEstado !== id);
+    this.updatePagination(this.estadosView.filter((e) => e.idEstado !== id));
     if (this.editMode && this.form.idEstado === id) {
       this.cancelar();
     }
@@ -158,7 +169,7 @@ export class Estados implements OnInit {
     } catch (error) {
       console.error(error);
       this.estados = prevEstados;
-      this.estadosView = prevEstadosView;
+      this.updatePagination(prevEstadosView);
       alert('No se pudo eliminar el estado.');
     } finally {
       this.eliminandoId = null;

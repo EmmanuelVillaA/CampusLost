@@ -42,4 +42,10 @@ public class objetoController {
     public void eliminar(@PathVariable Integer id) {
         objetoService.eliminar(id);
     }
+    
+    @PatchMapping("/{id}/punto-encuentro")
+    public objeto marcarPuntoEncuentro(@PathVariable Integer id, 
+                                        @RequestParam Boolean valor) {
+        return objetoService.marcarPuntoEncuentro(id, valor);
+    }
 }
