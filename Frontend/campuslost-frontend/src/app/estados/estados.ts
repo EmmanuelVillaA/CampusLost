@@ -8,12 +8,11 @@ import { EstadoDto } from '../dto/estadoDTO';
 import { PaginationControls } from '../shared/pagination-controls';
 import { TablePagination } from '../shared/table-pagination';
 import { Navbar } from '../componentes-generales/navbar-component';
-import { NotificacionService } from '../services/notificacion.service';
 
 @Component({
   selector: 'app-estados',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationControls,Navbar],
+  imports: [CommonModule, FormsModule, RouterLink, PaginationControls,Navbar],
   templateUrl: './estados.html',
   styleUrl: './estados.css',
 })
@@ -21,7 +20,6 @@ export class Estados implements OnInit {
   private readonly estadoService = inject(EstadoService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly notificacion = inject(NotificacionService);
 
   estados: EstadoDto[] = [];
   estadosView: EstadoDto[] = [];
@@ -49,7 +47,7 @@ export class Estados implements OnInit {
       this.aplicarFiltroLocal();
     } catch (error) {
       console.error(error);
-      this.notificacion.error(this.notificacion.parsearError(error));
+      alert('No se pudo cargar la lista de estados.');
     } finally {
       this.cargando = false;
     }
@@ -107,7 +105,7 @@ export class Estados implements OnInit {
       } catch (error) {
         console.error(error);
         this.updatePagination([]);
-        this.notificacion.advertencia('No se encontró el estado con ese ID.');
+        alert('No se encontró el estado con ese ID.');
       } finally {
         this.buscando = false;
       }
@@ -126,7 +124,7 @@ export class Estados implements OnInit {
   async guardar(): Promise<void> {
     const nombre = (this.form.nombre ?? '').trim();
     if (!nombre) {
-      this.notificacion.advertencia('El nombre es obligatorio.');
+      alert('El nombre es obligatorio.');
       return;
     }
 
@@ -143,7 +141,7 @@ export class Estados implements OnInit {
       void this.cargar();
     } catch (error) {
       console.error(error);
-      this.notificacion.error(this.notificacion.parsearError(error));
+      alert('No se pudo guardar el estado.');
     } finally {
       this.guardando = false;
     }
@@ -172,7 +170,7 @@ export class Estados implements OnInit {
       console.error(error);
       this.estados = prevEstados;
       this.updatePagination(prevEstadosView);
-      this.notificacion.error(this.notificacion.parsearError(error));
+      alert('No se pudo eliminar el estado.');
     } finally {
       this.eliminandoId = null;
     }

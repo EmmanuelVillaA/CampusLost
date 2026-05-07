@@ -8,12 +8,11 @@ import { RolDto, RolService } from '../services/rol';
 import { PaginationControls } from '../shared/pagination-controls';
 import { TablePagination } from '../shared/table-pagination';
 import { Navbar } from '../componentes-generales/navbar-component';
-import { NotificacionService } from '../services/notificacion.service';
 
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginationControls, Navbar],
+  imports: [CommonModule, FormsModule, RouterLink, PaginationControls, Navbar], // ← Navbar
   templateUrl: './roles.html',
   styleUrl: './roles.css',
 })
@@ -22,7 +21,6 @@ export class Roles implements OnInit {
   private readonly rolService = inject(RolService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly notificacion = inject(NotificacionService);
 
   roles: RolDto[] = [];
   rolesView: RolDto[] = [];
@@ -54,7 +52,7 @@ export class Roles implements OnInit {
       this.aplicarFiltroLocal();
     } catch (error) {
       console.error(error);
-      this.notificacion.error(this.notificacion.parsearError(error));
+      alert('No se pudo cargar la lista de roles.');
     } finally {
       this.cargando = false;
     }
@@ -107,7 +105,7 @@ export class Roles implements OnInit {
       } catch (error) {
         console.error(error);
         this.updatePagination([]);
-        this.notificacion.advertencia('No se encontró el rol con ese ID.');
+        alert('No se encontró el rol con ese ID.');
       } finally {
         this.buscando = false;
       }
@@ -126,7 +124,7 @@ export class Roles implements OnInit {
   async guardar(): Promise<void> {
     const nombre = (this.form.nombre ?? '').trim();
     if (!nombre) {
-      this.notificacion.advertencia('El nombre es obligatorio.');
+      alert('El nombre es obligatorio.');
       return;
     }
 
@@ -143,7 +141,7 @@ export class Roles implements OnInit {
       void this.cargar();
     } catch (error) {
       console.error(error);
-      this.notificacion.error(this.notificacion.parsearError(error));
+      alert('No se pudo guardar el rol.');
     } finally {
       this.guardando = false;
     }
@@ -172,7 +170,7 @@ export class Roles implements OnInit {
       console.error(error);
       this.roles = prevRoles;
       this.updatePagination(prevRolesView);
-      this.notificacion.error(this.notificacion.parsearError(error));
+      alert('No se pudo eliminar el rol.');
     } finally {
       this.eliminandoId = null;
     }

@@ -16,20 +16,20 @@ public class respuestaReclamacion {
     private intentoReclamacion intento;
 
     @ManyToOne
-    @JoinColumn(name = "id_pregunta_base")
-    private preguntaBase preguntaBase;
+    @JoinColumn(name = "id_pregunta")
+    private preguntaVerificacion pregunta;
 
     @Column(name = "respuesta_dada", nullable = false)
     private String respuestaDada;
 
     public Integer getIdRespuesta() { return idRespuesta; }
-    public void setIdRespuesta(Integer id) { this.idRespuesta = id; }
+    public void setIdRespuesta(Integer idRespuesta) { this.idRespuesta = idRespuesta; }
 
     public intentoReclamacion getIntento() { return intento; }
     public void setIntento(intentoReclamacion intento) { this.intento = intento; }
 
-    public preguntaBase getPreguntaBase() { return preguntaBase; }
-    public void setPreguntaBase(preguntaBase preguntaBase) { this.preguntaBase = preguntaBase; }
+    public preguntaVerificacion getPregunta() { return pregunta; }
+    public void setPregunta(preguntaVerificacion pregunta) { this.pregunta = pregunta; }
 
     public String getRespuestaDada() { return respuestaDada; }
     public void setRespuestaDada(String respuestaDada) { this.respuestaDada = respuestaDada; }
