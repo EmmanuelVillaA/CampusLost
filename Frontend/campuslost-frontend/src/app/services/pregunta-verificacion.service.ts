@@ -2,11 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PreguntaVerificacionDto } from '../dto/preguntaVerificacionDTO';
+import { environment } from '../../enviroments/enviroment';
 
 @Injectable({ providedIn: 'root' })
 export class PreguntaVerificacionService {
   private readonly http = inject(HttpClient);
-  private readonly api = '${environment.apiUrl}/preguntas-verificacion';
+  private readonly api = `${environment.apiUrl}/preguntas-verificacion`;
 
   guardar(data: PreguntaVerificacionDto): Observable<PreguntaVerificacionDto> {
     return this.http.post<PreguntaVerificacionDto>(this.api, data);
