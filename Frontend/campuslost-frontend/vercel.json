@@ -1,8 +1,10 @@
 {
+  "buildCommand": "ng build --configuration production",
+  "outputDirectory": "dist/campuslost-frontend/browser",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://campuslost-production.up.railway.app/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://campuslost-production.up.railway.app/api/:path*"
     },
     {
       "source": "/(.*)",
