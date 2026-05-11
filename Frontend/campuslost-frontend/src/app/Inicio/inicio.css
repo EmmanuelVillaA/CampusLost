@@ -165,3 +165,46 @@
   line-height: 1.6;
   margin: 0;
 }
+
+@media (max-width: 768px) {
+  .inicio-wrapper {
+    padding: 72px 1rem 1rem 1rem;
+  }
+
+  .hero-section {
+    flex-direction: column;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-titulo {
+    font-size: 28px;
+  }
+
+  .hero-ilustracion {
+    width: 200px;
+    height: 200px;
+  }
+
+  .ilustracion-circulo {
+    width: 140px;
+    height: 140px;
+    font-size: 48px;
+  }
+
+  .badge-1 { top: 0; right: 0; font-size: 11px; }
+  .badge-2 { bottom: 0; left: 0; font-size: 11px; }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
