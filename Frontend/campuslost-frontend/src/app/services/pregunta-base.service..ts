@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../enviroments/enviroment';
+
 import { PreguntaBase } from '../dto/pregunta.base.dto';
+import { environment } from '../../enviroments/enviroment.prod';
 
 @Injectable({ providedIn: 'root' })
 export class PreguntaBaseService {
